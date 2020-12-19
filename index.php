@@ -1,4 +1,4 @@
 <?php
 require __DIR__ . '/loader.php';
-$server = new Wpup_UpdateServer();
-$server->handleRequest();
+$server = new Epiphyt_Server();
+$server->handleRequest( $_REQUEST );
