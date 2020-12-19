@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/Wpup/Headers.php';
 require_once __DIR__ . '/includes/Wpup/Cache.php';
 require_once __DIR__ . '/includes/Wpup/FileCache.php';
 require_once __DIR__ . '/includes/Wpup/UpdateServer.php';
+require_once __DIR__ . '/includes/Wpup/Epiphyt_Server.class.php';
 
 if ( !class_exists('WshWordPressPackageParser') ) {
 	require_once __DIR__ . '/includes/extension-meta/extension-meta.php';
