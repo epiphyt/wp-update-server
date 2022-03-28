@@ -7,11 +7,14 @@
  */
 class Epiphyt_Server extends Wpup_UpdateServer {
 	/**
-	 * The WooCommerce API URL.
+	 * The WooCommerce API URLs.
 	 * 
-	 * @var string The API
+	 * @var string[] The API URLs
 	 */
-	public $woo_server = 'https://epiph.yt/wocommerce/?wc-api=software-api';
+	public $woo_servers = [
+		'https://epiph.yt/wocommerce/?wc-api=software-api',
+		'https://epiph.yt/en/wocommerce/?wc-api=software-api',
+	];
 	
 	public function __construct($serverUrl = null, $serverDirectory = null) {
 		parent::__construct( $serverUrl, $serverDirectory );
@@ -97,7 +100,7 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 			'software_version' => ( ! empty( $software_version ) ? $software_version : '1.0' ),
 		];
 		
-		$response = self::get_api_data( $this->woo_server, $data );
+		$response = $this->get_api_data( $data );
 		
 		// return false if there is no data
 		if ( ! is_object( $response ) || ! $response->success ) {
@@ -126,11 +129,33 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 	/**
 	 * Use cURL to get data from any URL.
 	 * 
+	 * @param array $data
+	 * @return mixed|string
+	 */
+	private function get_api_data( $data = [] ) {
+		$responses = [];
+		
+		foreach ( $this->woo_servers as $url ) {
+			$responses[ $url ] = $this->get_single_api_data( $url, $data );
+		}
+		
+		foreach ( $responses as $response ) {
+			if ( is_object( $response ) && is_array( $response->activations ) ) {
+				return $response;
+			}
+		}
+		
+		return reset( $responses );
+	}
+	
+	/**
+	 * Use cURL to get data from any URL.
+	 * 
 	 * @param string $url
 	 * @param array $data
 	 * @return mixed|string
 	 */
-	private static function get_api_data( $url, $data = [] ) {
+	private function get_single_api_data( $url, $data = [] ) {
 		$curl = curl_init();
 		$header = [ 'cache-control: no-cache' ];
 		
