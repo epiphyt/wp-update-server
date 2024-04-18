@@ -58,6 +58,8 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 	 */
 	protected function filterMetadata( $meta, $request ) {
 		$meta = parent::filterMetadata( $meta, $request );
+		$locale = $request->query['locale'] ?? 'en_US';
+		$meta = $this->get_changelog( $meta, $locale );
 		
 		$email = $request->param( 'license_email' );
 		$home_url = $request->param( 'platform' );
@@ -140,12 +142,79 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 		}
 		
 		foreach ( $responses as $response ) {
-			if ( is_object( $response ) && is_array( $response->activations ) ) {
+			if ( is_object( $response ) && isset( $response->activations ) && is_array( $response->activations ) ) {
 				return $response;
 			}
 		}
 		
 		return reset( $responses );
+	}
+	
+	/**
+	 * Get 
+	 * 
+	 * @param	array	$meta 
+	 * @param	string	$locale 
+	 * @return	array 
+	 */
+	private function get_changelog( array $meta, string $locale ): array {
+		$urls = [
+			'impressum' => [
+				'default' => 'https://impressum.plus/en/documentation/',
+				'german' => 'https://impressum.plus/dokumentation/',
+			],
+			'form-block-pro' => [
+				'default' => 'https://formblock.pro/en/documentation/',
+				'german' => 'https://formblock.pro/dokumentation/',
+			],
+		];
+		
+		if ( empty( $urls[ $meta['slug'] ] ) ) {
+			$meta['sections'] = [
+				'changelog' => '',
+			];
+			
+			return $meta;
+		}
+		
+		switch ( $locale ) {
+			case 'de_AT':
+			case 'de_DE':
+			case 'de_DE_formal':
+			case 'de_CH':
+			case 'de_CH_formal':
+				$url = $urls[ $meta['slug'] ]['german'];
+				break;
+			default:
+				$url = $urls[ $meta['slug'] ]['default'];
+				break;
+		}
+		
+		$html = $this->get_single_api_data( $url );
+		$use_internal_errors = \libxml_use_internal_errors( true );
+		$changelog = '';
+		$dom = new DOMDocument();
+		$dom->loadHTML( $html, \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
+		$group = $dom->getElementById( 'changelog-group' );
+		
+		if ( $group ) {
+			/** @var \DOMNode $childNode */
+			foreach ( $group->firstElementChild->childNodes as $childNode ) {
+				if ( \method_exists( $childNode, 'removeAttribute' ) ) {
+					$childNode->removeAttribute( 'id' );
+				}
+				
+				$changelog .= $dom->saveHTML( $childNode );
+			}
+		}
+		
+		\libxml_use_internal_errors( $use_internal_errors );
+		
+		$meta['sections'] = [
+			'changelog' => \trim( $changelog ),
+		];
+		
+		return $meta;
 	}
 	
 	/**
