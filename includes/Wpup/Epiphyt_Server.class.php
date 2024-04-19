@@ -151,11 +151,11 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 	}
 	
 	/**
-	 * Get 
+	 * Get the changelog
 	 * 
-	 * @param	array	$meta 
-	 * @param	string	$locale 
-	 * @return	array 
+	 * @param	array	$meta Current metadata
+	 * @param	string	$locale The specified locale
+	 * @return	array Updated metadata
 	 */
 	private function get_changelog( array $meta, string $locale ): array {
 		$urls = [
