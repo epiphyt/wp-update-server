@@ -160,12 +160,12 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 	private function get_changelog( array $meta, string $locale ): array {
 		$urls = [
 			'impressum' => [
-				'default' => 'https://impressum.plus/en/documentation/',
-				'german' => 'https://impressum.plus/dokumentation/',
+				'default' => 'https://impressum.plus/en/documentation/?redirected-locale=1',
+				'german' => 'https://impressum.plus/dokumentation/?redirected-locale=1',
 			],
 			'form-block-pro' => [
-				'default' => 'https://formblock.pro/en/documentation/',
-				'german' => 'https://formblock.pro/dokumentation/',
+				'default' => 'https://formblock.pro/en/documentation/?redirected-locale=1',
+				'german' => 'https://formblock.pro/dokumentation/?redirected-locale=1',
 			],
 		];
 		
@@ -242,7 +242,6 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
 			CURLOPT_HTTPHEADER => $header,
-			
 		] );
 		
 		$response = curl_exec( $curl );
