@@ -120,17 +120,13 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 		}
 		
 		// check software version
-		$is_valid = true;
-		
 		foreach ( $response->activations as $activation ) {
 			if ( version_compare( $this->remove_patch_version( $activation->software_version ), $this->remove_patch_version( $request->package->getMetadata()['version'] ), '>=' ) ) {
 				return true;
 			}
-			
-			$is_valid = false;
 		}
 		
-		return $is_valid;
+		return false;
 	}
 	
 	/**
