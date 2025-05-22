@@ -31,7 +31,12 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 		parent::checkAuthorization( $request );
 		
 		// prevent download if the user doesn't have a valid license.
-		$email = $request->param( 'email' );
+		$email = $request->param( 'license_email' );
+		
+		if ( ! $email ) {
+			$email = $request->param( 'email' );
+		}
+		
 		$home_url = $request->param( 'platform' );
 		$license_key = $request->param( 'license_key' );
 		$product_id = $request->param( 'product_id' );
