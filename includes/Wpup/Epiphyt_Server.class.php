@@ -37,7 +37,7 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 			$email = $request->param( 'email' );
 		}
 		
-		$home_url = $request->param( 'platform' );
+		$home_url = \rtrim( $request->param( 'platform' ), '/' ) . '/';
 		$license_key = $request->param( 'license_key' );
 		$product_id = $request->param( 'product_id' );
 		$software_version = $request->param( 'installed_version' );
@@ -67,7 +67,7 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 		$meta = $this->get_changelog( $meta, $locale );
 		
 		$email = $request->param( 'license_email' );
-		$home_url = $request->param( 'platform' );
+		$home_url = \rtrim( $request->param( 'platform' ), '/' ) . '/';
 		$license_key = $request->param( 'license_key' );
 		$product_id = $request->param( 'product_id' );
 		$software_version = $request->param( 'installed_version' );
@@ -243,6 +243,7 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
 			CURLOPT_HTTPHEADER => $header,
+			
 		] );
 		
 		$response = curl_exec( $curl );
