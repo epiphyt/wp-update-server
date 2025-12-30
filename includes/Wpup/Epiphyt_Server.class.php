@@ -161,12 +161,12 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 	private function get_changelog( array $meta, string $locale ): array {
 		$urls = [
 			'impressum' => [
-				'default' => 'https://impressum.plus/en/documentation/?redirected-locale=1',
-				'german' => 'https://impressum.plus/dokumentation/?redirected-locale=1',
+				'default' => 'https://docs.epiph.yt/impressum/changelog.html',
+				'german' => 'https://docs.epiph.yt/de/impressum/changelog.html',
 			],
 			'form-block-pro' => [
-				'default' => 'https://formblock.pro/en/documentation/?redirected-locale=1',
-				'german' => 'https://formblock.pro/dokumentation/?redirected-locale=1',
+				'default' => 'https://docs.epiph.yt/form-block/changelog.html',
+				'german' => 'https://docs.epiph.yt/de/form-block/changelog.html',
 			],
 		];
 		
@@ -196,13 +196,36 @@ class Epiphyt_Server extends Wpup_UpdateServer {
 		$changelog = '';
 		$dom = new DOMDocument();
 		$dom->loadHTML( $html, \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
-		$group = $dom->getElementById( 'changelog-group' );
+		$changelog_heading = $dom->getElementById( 'changelog' );
 		
-		if ( $group ) {
+		if ( ! $changelog_heading ) {
+			$changelog_heading = $dom->getElementById( 'anderungsprotokoll' );
+		}
+		
+		if ( $changelog_heading ) {
+			if ( \str_contains( $url, 'docs.epiph.yt' ) ) {
+				foreach ( $dom->getElementsByTagName( 'a' ) as $link ) {
+					if ( \str_starts_with( $link->getAttribute( 'href' ), '/' ) ) {
+						$link->setAttribute( 'href', 'https://docs.epiph.yt' . $link->getAttribute( 'href' ) );
+					}
+				}
+			}
+			
 			/** @var \DOMNode $childNode */
-			foreach ( $group->firstElementChild->childNodes as $childNode ) {
+			foreach ( $changelog_heading->parentNode->childNodes as $childNode ) {
+				if ( $childNode === $changelog_heading ) {
+					continue;
+				}
+				
 				if ( \method_exists( $childNode, 'removeAttribute' ) ) {
 					$childNode->removeAttribute( 'id' );
+					$childNode->removeAttribute( 'tabindex' );
+				}
+				
+				foreach ( $childNode->childNodes as $subNode ) {
+					if ( $subNode instanceof \DOMElement && $subNode->getAttribute( 'class' ) === 'header-anchor' ) {
+						$childNode->removeChild( $subNode );
+					}
 				}
 				
 				$changelog .= $dom->saveHTML( $childNode );
